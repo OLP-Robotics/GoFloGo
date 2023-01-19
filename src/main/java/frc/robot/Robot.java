@@ -33,6 +33,8 @@ public class Robot extends TimedRobot {
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     m_rightDrive.setInverted(true);
+
+    System.out.println("Hello World");
   }
 
   /** This function is run once each time the robot enters autonomous mode. */
