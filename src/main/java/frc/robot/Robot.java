@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 //import com.revrobotics.CANSparkMax;
 //import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 
 /**
@@ -31,6 +32,7 @@ public class Robot extends TimedRobot {
   private final XboxController m_controller = new XboxController(0);
   private final Timer m_timer = new Timer();
   private final TalonSRX talonMotor = new TalonSRX(2);
+  DigitalInput toplimitSwitch = new DigitalInput(6);
 
 
   /**
@@ -73,8 +75,15 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
-    talonMotor.set(TalonSRXControlMode.PercentOutput, m_controller.getLeftY());
+    double speed = m_controller.getLeftY();
+   if(toplimitSwitch.get()){
+    //if limit is tripped we stop
+   talonMotor.set(TalonSRXControlMode.PercentOutput, 0);
+  }else{
+// if limit is not tripped so go at commanded speed
+talonMotor.set(TalonSRXControlMode.PercentOutput, speed);
   }
+}
 
   /** This function is called once each time the robot enters test mode. */
   @Override
