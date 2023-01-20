@@ -5,10 +5,18 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-//import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import edu.wpi.first.wpilibj.DigitalInput;
+//import com.revrobotics.CANSparkMax;
+//import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.Encoder;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -22,6 +30,8 @@ public class Robot extends TimedRobot {
   //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftDrive, m_rightDrive);
   private final XboxController m_controller = new XboxController(0);
   private final Timer m_timer = new Timer();
+  private final TalonSRX talonMotor = new TalonSRX(2);
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -63,7 +73,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
-    //m_robotDrive.arcadeDrive(-m_controller.getLeftY(), -m_controller.getRightX());
+    talonMotor.set(TalonSRXControlMode.PercentOutput, m_controller.getLeftY());
   }
 
   /** This function is called once each time the robot enters test mode. */
