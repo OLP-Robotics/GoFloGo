@@ -13,8 +13,6 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
-//import com.revrobotics.CANSparkMax;
-//import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.networktables.GenericEntry;
@@ -36,7 +34,9 @@ public class Robot extends TimedRobot {
   //private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftDrive, m_rightDrive);
   private final XboxController m_controller = new XboxController(0);
   private final Timer m_timer = new Timer();
-  private final TalonSRX talonMotor = new TalonSRX(2);
+  private final TalonSRX talonMotorL = new TalonSRX(2);
+  private final TalonSRX talonMotorR = new TalonSRX(3);
+  private final double kP = 0.05;
   DigitalInput toplimitSwitch = new DigitalInput(6);
   private GenericEntry m_maxSpeed;
   ADXRS450_Gyro gyro = new ADXRS450_Gyro();
@@ -78,13 +78,20 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    double error = 90 - gyro.getAngle();
+    //talonMotorL.set(TalonSRXControlMode.PercentOutput, kP-error);
+      //talonMotorR.set(TalonSRXControlMode.PercentOutput, kP*-1+error);
+    
     // Drive for 2 seconds
     if (m_timer.get() < 2.0) {
-      talonMotor.set(TalonSRXControlMode.PercentOutput, .5);
+      talonMotorL.set(TalonSRXControlMode.PercentOutput, .5);
+      talonMotorR.set(TalonSRXControlMode.PercentOutput,-.5);
+  
       // Drive forwards half speed, make sure to turn input squaring off
       //m_robotDrive.arcadeDrive(0.5, 0.0, false);
     } else {
-      talonMotor.set(TalonSRXControlMode.PercentOutput, 0);
+      talonMotorL.set(TalonSRXControlMode.PercentOutput, 0);
+      talonMotorR.set(TalonSRXControlMode.PercentOutput, 0);
     }
   }
 
@@ -109,10 +116,12 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("speed",speed);
    if(toplimitSwitch.get()){
     //if limit is tripped we stop
-   talonMotor.set(TalonSRXControlMode.PercentOutput, 0);
+   talonMotorL.set(TalonSRXControlMode.PercentOutput, 0);
+   talonMotorR.set(TalonSRXControlMode.PercentOutput, 0);
   }else{
 // if limit is not tripped so go at commanded speed
-talonMotor.set(TalonSRXControlMode.PercentOutput, speed);
+talonMotorL.set(TalonSRXControlMode.PercentOutput, speed);
+talonMotorR.set(TalonSRXControlMode.PercentOutput, speed *-1);
   }
 
 }
