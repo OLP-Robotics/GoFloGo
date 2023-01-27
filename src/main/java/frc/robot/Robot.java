@@ -17,7 +17,12 @@ import edu.wpi.first.wpilibj.DigitalInput;
 //import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.DigitalInput;
-
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -33,7 +38,8 @@ public class Robot extends TimedRobot {
   private final Timer m_timer = new Timer();
   private final TalonSRX talonMotor = new TalonSRX(2);
   DigitalInput toplimitSwitch = new DigitalInput(6);
-
+  private GenericEntry m_maxSpeed;
+  ADXRS450_Gyro gyro = new ADXRS450_Gyro();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -45,8 +51,21 @@ public class Robot extends TimedRobot {
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     //m_rightDrive.setInverted(true);
-
+    CameraServer.startAutomaticCapture();
     System.out.println("Hi World!");
+    Shuffleboard.getTab("Gyro").add(gyro); 
+    // Add a 'max speed' widget to a tab named 'Configuration', using a number slider
+    // The widget will be placed in the second column and row and will be TWO columns wide
+    m_maxSpeed =
+        Shuffleboard.getTab("Configuration")
+            .add("Max Speed", 1)
+            .withWidget("Number Slider")
+            .withPosition(1, 1)
+            .withSize(2, 1)
+            .getEntry();
+
+            // Add the tank drive and encoders to a 'Drivebase' tab
+    ShuffleboardTab driveBaseTab = Shuffleboard.getTab("Drivebase");
   }
 
   /** This function is run once each time the robot enters autonomous mode. */
@@ -61,10 +80,11 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     // Drive for 2 seconds
     if (m_timer.get() < 2.0) {
+      talonMotor.set(TalonSRXControlMode.PercentOutput, .5);
       // Drive forwards half speed, make sure to turn input squaring off
       //m_robotDrive.arcadeDrive(0.5, 0.0, false);
     } else {
-     // m_robotDrive.stopMotor(); // stop robot
+      talonMotor.set(TalonSRXControlMode.PercentOutput, 0);
     }
   }
 
@@ -75,7 +95,18 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during teleoperated mode. */
   @Override
   public void teleopPeriodic() {
-    double speed = m_controller.getLeftY();
+    double speed = Math.abs(m_controller.getLeftY());
+    SmartDashboard.putNumber("speed before",speed);
+    if(speed<0.05){
+      speed = 0;
+    }
+
+    speed = Math.sqrt(speed);
+    if(m_controller.getLeftY()<0){
+      speed*=-1;
+    }
+  
+    SmartDashboard.putNumber("speed",speed);
    if(toplimitSwitch.get()){
     //if limit is tripped we stop
    talonMotor.set(TalonSRXControlMode.PercentOutput, 0);
@@ -83,6 +114,7 @@ public class Robot extends TimedRobot {
 // if limit is not tripped so go at commanded speed
 talonMotor.set(TalonSRXControlMode.PercentOutput, speed);
   }
+
 }
 
   /** This function is called once each time the robot enters test mode. */
