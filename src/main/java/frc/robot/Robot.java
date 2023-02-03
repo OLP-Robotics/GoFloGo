@@ -22,10 +22,10 @@ public class Robot extends TimedRobot {
 
   private final WPI_TalonFX talMotorL1 = new WPI_TalonFX(1);
   private final WPI_TalonFX talMotorL2 = new WPI_TalonFX(2);
-  private final WPI_VictorSPX victorMotorR3 = new WPI_VictorSPX(3);
-  private final WPI_VictorSPX victorMotorR4 = new WPI_VictorSPX(4);
+  private final WPI_TalonFX talMotorR3 = new WPI_TalonFX(3);
+  private final WPI_TalonFX talMotorR4 = new WPI_TalonFX(4);
   private final MotorControllerGroup leftMotors = new MotorControllerGroup(talMotorL1, talMotorL2);
-  private final MotorControllerGroup rightMotors = new MotorControllerGroup(victorMotorR3, victorMotorR4);
+  private final MotorControllerGroup rightMotors = new MotorControllerGroup(talMotorR3, talMotorR4);
 
   @Override
   public void robotInit() {
