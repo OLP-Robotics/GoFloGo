@@ -1,5 +1,7 @@
 # AprilTags in WPILib
 
+Example code from wpilib: https://github.com/wpilibsuite/allwpilib/tree/main/wpilibjExamples/src/main/java/edu/wpi/first/wpilibj/examples/apriltagsvision
+
 ## 2D Alignment
 
 1. Scan tag ID
