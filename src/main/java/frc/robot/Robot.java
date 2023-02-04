@@ -46,7 +46,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     //Uses the 2 joysticks on the xboxController to control the left and right side of the tank drive
-    myRobot.tankDrive(-xbox.getLeftY(), -xbox.getRightY());
+    myRobot.tankDrive(-xbox.getLeftY(), xbox.getRightY());
 
   }
 }
