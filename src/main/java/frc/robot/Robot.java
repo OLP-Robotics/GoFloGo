@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-//import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 //import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 //import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
@@ -35,13 +35,15 @@ public class Robot extends TimedRobot {
   private final WPI_TalonFX talMotorL2 = new WPI_TalonFX(2);
   private final WPI_TalonFX talMotorR3 = new WPI_TalonFX(3);
   private final WPI_TalonFX talMotorR4 = new WPI_TalonFX(4);
+  private final WPI_VictorSPX vicMotorL5 = new WPI_VictorSPX (5);
+  private final WPI_VictorSPX vicMotorR6 = new WPI_VictorSPX (6);
   private final MotorControllerGroup leftMotors = new MotorControllerGroup(talMotorL1, talMotorL2);
   private final MotorControllerGroup rightMotors = new MotorControllerGroup(talMotorR3, talMotorR4);
   //private static final double kAngleSetpoint = 0.0;
 	private static final double kP = 1; // propotional turning constant
   // The heading of the robot when starting the motion
 double heading;
-
+int stationID = 0;
 	// gyro calibration constant, may need to be adjusted;
 	// gyro value of 360 is set to correspond to one full revolution
 	//private static final double kVoltsPerDegreePerSecond = 0.0128;
@@ -62,6 +64,8 @@ double heading;
   public void autonomousInit() {
       // Set setpoint to current heading at start of auto
       heading = mgyro.getAngle();
+      // This is where we will get the AprilTag
+      stationID = 1;
       mtimer.reset();
       mtimer.start();
   }
@@ -69,18 +73,26 @@ double heading;
   @Override
   public void autonomousPeriodic() {
     double error = heading - mgyro.getAngle();
-   if(mtimer.get() < 2.0) {
+   if(mtimer.get() < 1.0) {
     
   
       // Drives forward continuously at half speed, using the gyro to stabilize the heading
-      myRobot.tankDrive(.5 + kP * error, .5 - kP * error);
+      myRobot.tankDrive(.5, .5 );
       
     }
-    else{
-      myRobot.tankDrive(0,0);
+    else if (mtimer.get() < 2) {
+    myRobot.tankDrive(0.5,0);
     }
-    SmartDashboard.putNumber("error", error);
-      SmartDashboard.putNumber("tankdriver", .5 + kP * error);
+
+    else if (mtimer.get() < 3) {
+      myRobot.tankDrive(0.5,0.5);
+    }
+
+        else{
+          myRobot.tankDrive(0,0);
+    }
+    //SmartDashboard.putNumber("error", error);
+      //SmartDashboard.putNumber("tankdriver", .5 + kP * error);
   }
   @Override
   public void teleopPeriodic() {
@@ -89,5 +101,26 @@ double heading;
     myRobot.tankDrive(-xbox.getLeftY(), -xbox.getRightY());
 
   }
+  @Override
+  public void testInit() {
+      
+  }
  
+  @Override
+  public void testPeriodic() {
+    SmartDashboard.putBoolean("LB",xbox.getLeftBumper());
+    if (xbox.getLeftBumper()){
+     //Uses left bumper on the xboxController to intake the cube
+    vicMotorL5.set(0.3);
+    vicMotorR6.set(-0.3);
+    }
+    if (xbox.getRightBumper()){
+      //Uses right bumper on the xboxController to outake the cube
+     vicMotorL5.set(-0.3);
+     vicMotorR6.set(0.3);
+     }
+    //Uses the 2 joysticks on the xboxController to control the left and right side of the tank drive
+    myRobot.tankDrive(-xbox.getLeftY(), -xbox.getRightY());
+
+  }
 }
