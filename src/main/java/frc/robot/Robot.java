@@ -65,7 +65,7 @@ int stationID = 0;
       // Set setpoint to current heading at start of auto
       heading = mgyro.getAngle();
       // This is where we will get the AprilTag
-      stationID = 1;
+      stationID = 7;
       mtimer.reset();
       mtimer.start();
   }
@@ -80,12 +80,16 @@ int stationID = 0;
       myRobot.tankDrive(.5, .5 );
       
     }
+    
     else if (mtimer.get() < 2) {
-    myRobot.tankDrive(0.5,0);
+      if (stationID == 1 || stationID == 6){myRobot.tankDrive(0.6,0);}
+    else if (stationID == 3 || stationID == 8){myRobot.tankDrive(0,0.6);}
+    else if (stationID == 2 || stationID == 7){myRobot.tankDrive(-0.5,-0.5);}
     }
-
     else if (mtimer.get() < 3) {
-      myRobot.tankDrive(0.5,0.5);
+      if (stationID == 2 || stationID == 7){myRobot.tankDrive(-0.5,-0.5);}
+      else {myRobot.tankDrive(0.5,0.5);}
+      
     }
 
         else{
