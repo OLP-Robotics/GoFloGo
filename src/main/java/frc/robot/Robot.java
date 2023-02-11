@@ -118,10 +118,15 @@ int stationID = 0;
     vicMotorL5.set(0.3);
     vicMotorR6.set(-0.3);
     }
-    if (xbox.getRightBumper()){
+    else if (xbox.getRightBumper()){
       //Uses right bumper on the xboxController to outake the cube
      vicMotorL5.set(-0.3);
      vicMotorR6.set(0.3);
+     }
+     //it stops the motors
+     else {
+      vicMotorL5.set(0);
+     vicMotorR6.set(0);
      }
     //Uses the 2 joysticks on the xboxController to control the left and right side of the tank drive
     myRobot.tankDrive(-xbox.getLeftY(), -xbox.getRightY());
