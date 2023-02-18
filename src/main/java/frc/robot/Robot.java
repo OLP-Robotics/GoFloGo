@@ -21,6 +21,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Encoder;
 
 
 /**
@@ -30,7 +31,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class Robot extends TimedRobot {
   private DifferentialDrive myRobot;
   private XboxController xbox;
-
+  Encoder encoder = new Encoder(0, 1);
   private final WPI_TalonFX talMotorL1 = new WPI_TalonFX(1);
   private final WPI_TalonFX talMotorL2 = new WPI_TalonFX(2);
   private final WPI_TalonFX talMotorR3 = new WPI_TalonFX(3);
@@ -72,6 +73,8 @@ int stationID = 0;
   
   @Override
   public void autonomousPeriodic() {
+    SmartDashboard.putNumber("right", encoder.getDistance());
+    SmartDashboard.putNumber("left", encoder.getDistance());
     double error = heading - mgyro.getAngle();
    if(mtimer.get() < 1.0) {
     
