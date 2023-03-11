@@ -10,15 +10,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-//import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-//import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-//import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.cameraserver.CameraServer;
-//import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Encoder;
@@ -31,7 +25,8 @@ import edu.wpi.first.wpilibj.Encoder;
 public class Robot extends TimedRobot {
   private DifferentialDrive myRobot;
   private XboxController xbox;
-  Encoder encoder = new Encoder(0, 1);
+  Encoder encoder = new Encoder (1, 0, false, Encoder. EncodingType.k2X);
+  Encoder encoder2 = new Encoder(3,2, false, Encoder. EncodingType.k2X); 
   private final WPI_TalonFX talMotorL1 = new WPI_TalonFX(1);
   private final WPI_TalonFX talMotorL2 = new WPI_TalonFX(2);
   private final WPI_TalonFX talMotorR3 = new WPI_TalonFX(3);
@@ -58,6 +53,8 @@ int stationID = 0;
     myRobot = new DifferentialDrive(leftMotors, rightMotors);
     CameraServer.startAutomaticCapture();
     mgyro.calibrate();
+    encoder.setDistancePerPulse(1./256.);
+    encoder2.setDistancePerPulse(1./256.);
 
 
   }
@@ -66,7 +63,7 @@ int stationID = 0;
       // Set setpoint to current heading at start of auto
       heading = mgyro.getAngle();
       // This is where we will get the AprilTag
-      stationID = 7;
+      stationID = 1;
       mtimer.reset();
       mtimer.start();
   }
@@ -74,7 +71,8 @@ int stationID = 0;
   @Override
   public void autonomousPeriodic() {
     SmartDashboard.putNumber("right", encoder.getDistance());
-    SmartDashboard.putNumber("left", encoder.getDistance());
+   // SmartDashboard.putNumber("left", encoder2.getDistance());
+   SmartDashboard.putNumber("left", mtimer.get());
     double error = heading - mgyro.getAngle();
    if(mtimer.get() < 1.0) {
     
@@ -105,8 +103,13 @@ int stationID = 0;
   public void teleopPeriodic() {
     
     //Uses the 2 joysticks on the xboxController to control the left and right side of the tank drive
-    myRobot.tankDrive(-xbox.getLeftY(), -xbox.getRightY());
-
+    //myRobot.tankDrive(-xbox.getLeftY(), -xbox.getRightY());
+    if(xbox.getLeftTriggerAxis()>0){
+    myRobot.arcadeDrive(xbox.getLeftTriggerAxis(),xbox.getRightY());
+    }
+    else{
+      myRobot.arcadeDrive(-xbox.getRightTriggerAxis(),xbox.getRightY());
+    }
   }
   @Override
   public void testInit() {
@@ -115,24 +118,6 @@ int stationID = 0;
  
   @Override
   public void testPeriodic() {
-    SmartDashboard.putBoolean("LB",xbox.getLeftBumper());
-    if (xbox.getLeftBumper()){
-     //Uses left bumper on the xboxController to intake the cube
-    vicMotorL5.set(0.3);
-    vicMotorR6.set(-0.3);
-    }
-    else if (xbox.getRightBumper()){
-      //Uses right bumper on the xboxController to outake the cube
-     vicMotorL5.set(-0.3);
-     vicMotorR6.set(0.3);
-     }
-     //it stops the motors
-     else {
-      vicMotorL5.set(0);
-     vicMotorR6.set(0);
-     }
-    //Uses the 2 joysticks on the xboxController to control the left and right side of the tank drive
-    myRobot.tankDrive(-xbox.getLeftY(), -xbox.getRightY());
 
   }
 }
