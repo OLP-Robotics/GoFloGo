@@ -16,6 +16,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 
 /**
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.Encoder;
 public class Robot extends TimedRobot {
   private DifferentialDrive myRobot;
   private XboxController xbox;
+  private XboxController xboxCoDriver;
   Encoder encoder = new Encoder (1, 0, false, Encoder. EncodingType.k2X);
   Encoder encoder2 = new Encoder(3,2, false, Encoder. EncodingType.k2X); 
   private final WPI_TalonFX talMotorL1 = new WPI_TalonFX(1);
@@ -33,10 +35,14 @@ public class Robot extends TimedRobot {
   private final WPI_TalonFX talMotorR4 = new WPI_TalonFX(4);
   private final WPI_VictorSPX vicMotorL5 = new WPI_VictorSPX (5);
   private final WPI_VictorSPX vicMotorR6 = new WPI_VictorSPX (6);
+  private final WPI_TalonFX talMotorVise = new WPI_TalonFX(7);
   private final MotorControllerGroup leftMotors = new MotorControllerGroup(talMotorL1, talMotorL2);
   private final MotorControllerGroup rightMotors = new MotorControllerGroup(talMotorR3, talMotorR4);
   //private static final double kAngleSetpoint = 0.0;
-	private static final double kP = 1; // propotional turning constant
+
+  private DigitalInput limitSwitch = new DigitalInput(0);
+  
+  
   // The heading of the robot when starting the motion
 double heading;
 int stationID = 0;
@@ -49,6 +55,7 @@ int stationID = 0;
   @Override
   public void robotInit() {
     xbox = new XboxController(0);
+    xboxCoDriver = new XboxController(1);
     rightMotors.setInverted(true);
     myRobot = new DifferentialDrive(leftMotors, rightMotors);
     CameraServer.startAutomaticCapture();
@@ -73,7 +80,6 @@ int stationID = 0;
     SmartDashboard.putNumber("right", encoder.getDistance());
    // SmartDashboard.putNumber("left", encoder2.getDistance());
    SmartDashboard.putNumber("left", mtimer.get());
-    double error = heading - mgyro.getAngle();
    if(mtimer.get() < 1.0) {
     
   
@@ -105,11 +111,42 @@ int stationID = 0;
     //Uses the 2 joysticks on the xboxController to control the left and right side of the tank drive
     //myRobot.tankDrive(-xbox.getLeftY(), -xbox.getRightY());
     if(xbox.getLeftTriggerAxis()>0){
-    myRobot.arcadeDrive(xbox.getLeftTriggerAxis(),xbox.getRightY());
+    myRobot.arcadeDrive(xbox.getLeftTriggerAxis(),xbox.getRightY()/2);
     }
     else{
-      myRobot.arcadeDrive(-xbox.getRightTriggerAxis(),xbox.getRightY());
+      myRobot.arcadeDrive(-xbox.getRightTriggerAxis(),xbox.getRightY()/2);
     }
+//when u press left trigger, it goes up depending how fast you hold it down
+    if(xboxCoDriver.getLeftTriggerAxis()>0){
+      vicMotorL5.set(xbox.getLeftTriggerAxis());
+      vicMotorR6.set(xbox.getLeftTriggerAxis());
+      }
+  //when u press right trigger, it goes down depending how fast you hold it down
+    if (xboxCoDriver.getRightTriggerAxis()>0){
+      vicMotorL5.set(-xbox.getRightTriggerAxis());
+      vicMotorR6.set(-xbox.getRightTriggerAxis());
+      }
+
+      //when you press x, the vise grips in
+    if (xboxCoDriver.getXButton()){
+      if (limitSwitch.get()) {
+        talMotorVise.set(0);
+         //failsafe so the vise it won't keep going far away if limit switch is hit
+    }else {
+      talMotorVise.set(.25);
+    
+    }
+  }
+    //when you press b, the vise goes out
+    if (xboxCoDriver.getBButton()){
+      if (limitSwitch.get()) {
+        talMotorVise.set(0);
+         //failsafe so the vise it won't keep going far away if limit switch is hit
+    }else {
+      talMotorVise.set(-.25);
+    }
+    }
+
   }
   @Override
   public void testInit() {
