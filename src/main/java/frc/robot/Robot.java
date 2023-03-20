@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -42,7 +43,13 @@ public class Robot extends TimedRobot {
 
   private DigitalInput limitSwitch = new DigitalInput(0);
   
-  
+  private final DoubleSolenoid m_doubleSolenoid =
+  new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 1, 2);
+ 
+
+  private final DoubleSolenoid m_doubleSolenoid2 =
+  new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 3, 4);
+
   // The heading of the robot when starting the motion
 double heading;
 int stationID = 0;
@@ -119,12 +126,12 @@ int stationID = 0;
 //when u press left trigger, it goes up depending how fast you hold it down
     if(xboxCoDriver.getLeftTriggerAxis()>0){
       vicMotorL5.set(xbox.getLeftTriggerAxis());
-      vicMotorR6.set(xbox.getLeftTriggerAxis());
+      vicMotorR6.set(-xbox.getLeftTriggerAxis());
       }
   //when u press right trigger, it goes down depending how fast you hold it down
     if (xboxCoDriver.getRightTriggerAxis()>0){
       vicMotorL5.set(-xbox.getRightTriggerAxis());
-      vicMotorR6.set(-xbox.getRightTriggerAxis());
+      vicMotorR6.set(xbox.getRightTriggerAxis());
       }
 
       //when you press x, the vise grips in
@@ -145,6 +152,13 @@ int stationID = 0;
     }else {
       talMotorVise.set(-.25);
     }
+    }
+    if (xboxCoDriver.getYButton()) {
+      m_doubleSolenoid.set(DoubleSolenoid.Value.kForward);
+      m_doubleSolenoid2.set(DoubleSolenoid.Value.kForward);
+    } else if (xboxCoDriver.getAButton()) {
+      m_doubleSolenoid.set(DoubleSolenoid.Value.kReverse);
+      m_doubleSolenoid2.set(DoubleSolenoid.Value.kReverse);
     }
 
   }
