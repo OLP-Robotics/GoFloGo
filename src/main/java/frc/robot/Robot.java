@@ -125,13 +125,7 @@ int stationID = 0;
     }
 //when u press left trigger, it goes up depending how fast you hold it down
     if(xboxCoDriver.getLeftTriggerAxis()>0){
-      vicMotorL5.set(xbox.getLeftTriggerAxis());
-      vicMotorR6.set(-xbox.getLeftTriggerAxis());
-      }
-  //when u press right trigger, it goes down depending how fast you hold it down
-    if (xboxCoDriver.getRightTriggerAxis()>0){
-      vicMotorL5.set(-xbox.getRightTriggerAxis());
-      vicMotorR6.set(xbox.getRightTriggerAxis());
+
       }
 
       //when you press x, the vise grips in
